@@ -90,6 +90,21 @@ export OPENAI_API_KEY="..."
 export OPENAI_BASE_URL="https://api.openai.com/v1"
 ```
 
+### OpenRouter (OpenAI-compatible)
+
+```bash
+export OPENAI_API_KEY="sk-or-v1-..."
+export OPENAI_BASE_URL="https://openrouter.ai/api/v1"
+```
+
+Use a valid OpenRouter model slug when launching `claw`:
+
+```bash
+claw --model "openai/gpt-4o-mini" "summarize this workspace"
+```
+
+Note: model ids should be provider/model slugs (for example `openai/gpt-4o-mini`), not `openrouter/...`.
+
 ### Grok / xAI
 
 ```bash

@@ -16,8 +16,8 @@ use std::thread;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use api::{
-    resolve_startup_auth_source, AuthSource, ClawApiClient, ContentBlockDelta, InputContentBlock,
-    InputMessage, MessageRequest, MessageResponse, OutputContentBlock,
+    AuthSource, ClawApiClient, ContentBlockDelta, InputContentBlock, InputMessage, MessageRequest,
+    MessageResponse, OutputContentBlock, ProviderClient,
     StreamEvent as ApiStreamEvent, ToolChoice, ToolDefinition, ToolResultContentBlock,
 };
 
@@ -3040,7 +3040,7 @@ impl runtime::PermissionPrompter for CliPermissionPrompter {
 
 struct DefaultRuntimeClient {
     runtime: tokio::runtime::Runtime,
-    client: ClawApiClient,
+    client: ProviderClient,
     model: String,
     enable_tools: bool,
     emit_output: bool,
@@ -3060,8 +3060,7 @@ impl DefaultRuntimeClient {
     ) -> Result<Self, Box<dyn std::error::Error>> {
         Ok(Self {
             runtime: tokio::runtime::Runtime::new()?,
-            client: ClawApiClient::from_auth(resolve_cli_auth_source()?)
-                .with_base_url(api::read_base_url()),
+            client: ProviderClient::from_model(&model)?,
             model,
             enable_tools,
             emit_output,
@@ -3070,16 +3069,6 @@ impl DefaultRuntimeClient {
             progress_reporter,
         })
     }
-}
-
-fn resolve_cli_auth_source() -> Result<AuthSource, Box<dyn std::error::Error>> {
-    Ok(resolve_startup_auth_source(|| {
-        let cwd = env::current_dir().map_err(api::ApiError::from)?;
-        let config = ConfigLoader::default_for(&cwd).load().map_err(|error| {
-            api::ApiError::Auth(format!("failed to load runtime OAuth config: {error}"))
-        })?;
-        Ok(config.oauth().cloned())
-    })?)
 }
 
 impl ApiClient for DefaultRuntimeClient {

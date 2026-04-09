@@ -189,14 +189,14 @@ pub fn detect_provider_kind(model: &str) -> ProviderKind {
     if let Some(metadata) = metadata_for_model(model) {
         return metadata.provider;
     }
-    if claw_provider::has_auth_from_env_or_saved().unwrap_or(false) {
-        return ProviderKind::ClawApi;
-    }
     if openai_compat::has_api_key("OPENAI_API_KEY") {
         return ProviderKind::OpenAi;
     }
     if openai_compat::has_api_key("XAI_API_KEY") {
         return ProviderKind::Xai;
+    }
+    if claw_provider::has_auth_from_env_or_saved().unwrap_or(false) {
+        return ProviderKind::ClawApi;
     }
     ProviderKind::ClawApi
 }
